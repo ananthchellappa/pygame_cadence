@@ -18,7 +18,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-py-modules = ["main", "command_window", "canvas_window", "interpreter", "graphics_api"]
+py-modules = ["main", "command_window", "canvas_window", "interpreter", "graphics_api", "document", "command_context"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

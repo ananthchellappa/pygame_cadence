@@ -1,18 +1,13 @@
+from command_context import CommandContext
+from document import Document
 from graphics_api import build_namespace
 from interpreter import CommandInterpreter
 
 
-class _FakeCanvas:
-    def __init__(self):
-        self.calls = []
-
-    def move_to(self, x, y):
-        self.calls.append((x, y))
-
-
 def _make(log=None):
     log = [] if log is None else log
-    interp = CommandInterpreter(build_namespace(_FakeCanvas()), log.append)
+    context = CommandContext(document=Document())
+    interp = CommandInterpreter(build_namespace(context), log.append)
     return interp, log
 
 

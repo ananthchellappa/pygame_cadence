@@ -3,7 +3,9 @@ import tkinter as tk
 import pygame
 
 from canvas_window import CanvasWindow
+from command_context import CommandContext
 from command_window import CommandWindow
+from document import Document
 
 FRAME_MS = 16
 
@@ -24,8 +26,10 @@ def main() -> None:
             except tk.TclError:
                 pass
 
-    canvas = CanvasWindow(on_quit=shutdown)
-    CommandWindow(root, canvas)
+    document = Document()
+    canvas = CanvasWindow(document, on_quit=shutdown)
+    context = CommandContext(document=document)
+    CommandWindow(root, context)
 
     root.protocol("WM_DELETE_WINDOW", shutdown)
 

@@ -1,12 +1,13 @@
 import tkinter as tk
 from tkinter import ttk
 
+from command_context import CommandContext
 from graphics_api import build_namespace
 from interpreter import CommandInterpreter
 
 
 class CommandWindow:
-    def __init__(self, root: tk.Tk, canvas):
+    def __init__(self, root: tk.Tk, context: CommandContext):
         self.root = root
         root.title("Commands")
         root.geometry("600x400")
@@ -44,7 +45,7 @@ class CommandWindow:
         self.entry.focus_set()
 
         self.interpreter = CommandInterpreter(
-            namespace=build_namespace(canvas),
+            namespace=build_namespace(context),
             log_callback=self.log_message,
         )
 
