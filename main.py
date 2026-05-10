@@ -6,6 +6,8 @@ from canvas_window import CanvasWindow
 from command_context import CommandContext
 from command_window import CommandWindow
 from document import Document
+from graphics_api import build_namespace
+from interpreter import CommandInterpreter
 
 FRAME_MS = 16
 
@@ -28,8 +30,11 @@ def main() -> None:
 
     document = Document()
     canvas = CanvasWindow(document, on_quit=shutdown)
+    window = CommandWindow(root)
+
     context = CommandContext(document=document)
-    CommandWindow(root, context)
+    interpreter = CommandInterpreter(build_namespace(context), window.log_message)
+    window.set_executor(interpreter.execute)
 
     root.protocol("WM_DELETE_WINDOW", shutdown)
 
