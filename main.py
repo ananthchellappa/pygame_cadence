@@ -3,7 +3,7 @@ import tkinter as tk
 import pygame
 
 from canvas_window import CanvasWindow
-from command_context import CommandContext
+from command_context import CommandContext, FontTarget
 from command_window import CommandWindow
 from document import Document
 from graphics_api import build_namespace
@@ -33,6 +33,8 @@ def main() -> None:
     window = CommandWindow(root)
 
     context = CommandContext(document=document)
+    context.font_targets["Command"] = FontTarget(window.get_font_size, window.set_font_size)
+
     interpreter = CommandInterpreter(build_namespace(context), window.log_message)
     window.set_executor(interpreter.execute)
 
