@@ -7,9 +7,19 @@ dependencies = [
     "pygame-ce",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+]
+
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-py-modules = ["main", "command_window", "canvas_window"]
+py-modules = ["main", "command_window", "canvas_window", "interpreter", "graphics_api"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
