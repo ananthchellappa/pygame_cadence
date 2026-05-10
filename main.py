@@ -24,8 +24,8 @@ def main() -> None:
             except tk.TclError:
                 pass
 
-    CommandWindow(root)
     canvas = CanvasWindow(on_quit=shutdown)
+    CommandWindow(root, canvas)
 
     root.protocol("WM_DELETE_WINDOW", shutdown)
 
