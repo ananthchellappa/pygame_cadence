@@ -4,6 +4,7 @@ from tkinter import ttk
 from typing import Callable, Optional
 
 from command_history import CommandHistory
+from text_editing import word_boundary_left, word_boundary_right
 
 DEFAULT_FONT_SIZE = 14
 
@@ -60,6 +61,8 @@ class CommandWindow:
         self.entry.bind("<Return>", self._on_return)
         self.entry.bind("<Up>", self._on_up)
         self.entry.bind("<Down>", self._on_down)
+        self.entry.bind("<Control-BackSpace>", self._on_delete_word_left)
+        self.entry.bind("<Control-Delete>", self._on_delete_word_right)
         self.entry.focus_set()
 
         self._execute: Optional[Callable[[str], bool]] = None
@@ -116,4 +119,18 @@ class CommandWindow:
             self.entry.delete(0, tk.END)
             self.entry.insert(0, recalled)
             self.entry.icursor(tk.END)
+        return "break"
+
+    def _on_delete_word_left(self, _event):
+        cursor = self.entry.index(tk.INSERT)
+        boundary = word_boundary_left(self.entry.get(), cursor)
+        if boundary < cursor:
+            self.entry.delete(boundary, cursor)
+        return "break"
+
+    def _on_delete_word_right(self, _event):
+        cursor = self.entry.index(tk.INSERT)
+        boundary = word_boundary_right(self.entry.get(), cursor)
+        if boundary > cursor:
+            self.entry.delete(cursor, boundary)
         return "break"
