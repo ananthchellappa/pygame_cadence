@@ -5,6 +5,7 @@ from typing import Callable, Optional
 
 from command_history import CommandHistory
 from text_editing import word_boundary_left, word_boundary_right
+from transcript import TranscriptLogger
 
 DEFAULT_FONT_SIZE = 14
 
@@ -13,11 +14,13 @@ class CommandWindow:
     def __init__(
         self,
         root: tk.Tk,
+        transcript: TranscriptLogger,
         on_new_schematic: Callable[[], None],
         on_load_file: Callable[[str], None],
         on_exit: Callable[[], None],
     ):
         self.root = root
+        self.transcript = transcript
         root.title("Commands")
         root.geometry("600x400")
 
@@ -29,14 +32,25 @@ class CommandWindow:
             if path:
                 on_load_file(path)
 
+        def _menu(label, action):
+            def wrapped():
+                self.transcript.record("MENU", label)
+                action()
+            return wrapped
+
         menubar = tk.Menu(root)
         file_menu = tk.Menu(menubar, tearoff=False)
         new_menu = tk.Menu(file_menu, tearoff=False)
-        new_menu.add_command(label="Schematic", command=on_new_schematic)
+        new_menu.add_command(
+            label="Schematic",
+            command=_menu("File > New > Schematic", on_new_schematic),
+        )
         file_menu.add_cascade(label="New", menu=new_menu)
-        file_menu.add_command(label="Load...", command=pick_and_load)
+        file_menu.add_command(
+            label="Load...", command=_menu("File > Load...", pick_and_load)
+        )
         file_menu.add_separator()
-        file_menu.add_command(label="Exit", command=on_exit)
+        file_menu.add_command(label="Exit", command=_menu("File > Exit", on_exit))
         menubar.add_cascade(label="File", menu=file_menu)
         root.config(menu=menubar)
 
@@ -99,6 +113,12 @@ class CommandWindow:
     def set_executor(self, execute_fn: Callable[[str], bool]) -> None:
         self._execute = execute_fn
 
+    def set_transcript(self, transcript: TranscriptLogger) -> None:
+        old = self.transcript
+        self.transcript = transcript
+        if old is not None and old is not transcript:
+            old.close()
+
     def get_font_size(self) -> int:
         return self._font_size
 
@@ -118,6 +138,7 @@ class CommandWindow:
     def _on_return(self, _event):
         line = self.entry.get()
         self._history.add(line)
+        self.transcript.record("INPUT", line)
         self.entry.delete(0, tk.END)
         prompt = self.prompt_var.get()
         self.log_message(prompt + line)
