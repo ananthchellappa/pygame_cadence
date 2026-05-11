@@ -3,7 +3,9 @@ import tkinter.font as tkfont
 from tkinter import ttk
 from typing import Callable, Optional
 
-DEFAULT_FONT_SIZE = 10
+from command_history import CommandHistory
+
+DEFAULT_FONT_SIZE = 14
 
 
 class CommandWindow:
@@ -56,9 +58,12 @@ class CommandWindow:
         self.entry = ttk.Entry(entry_frame, font=self._font_spec())
         self.entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=4, pady=4)
         self.entry.bind("<Return>", self._on_return)
+        self.entry.bind("<Up>", self._on_up)
+        self.entry.bind("<Down>", self._on_down)
         self.entry.focus_set()
 
         self._execute: Optional[Callable[[str], bool]] = None
+        self._history = CommandHistory()
 
     def _font_spec(self) -> tuple:
         return (self._font_family, self._font_size)
@@ -84,6 +89,7 @@ class CommandWindow:
 
     def _on_return(self, _event):
         line = self.entry.get()
+        self._history.add(line)
         self.entry.delete(0, tk.END)
         prompt = self.prompt_var.get()
         self.log_message(prompt + line)
@@ -94,4 +100,20 @@ class CommandWindow:
         # moving execution to a worker thread with a queue back to the log.
         more = self._execute(line)
         self.prompt_var.set("... " if more else ">>> ")
+        return "break"
+
+    def _on_up(self, _event):
+        recalled = self._history.prev(self.entry.get())
+        if recalled is not None:
+            self.entry.delete(0, tk.END)
+            self.entry.insert(0, recalled)
+            self.entry.icursor(tk.END)
+        return "break"
+
+    def _on_down(self, _event):
+        recalled = self._history.next(self.entry.get())
+        if recalled is not None:
+            self.entry.delete(0, tk.END)
+            self.entry.insert(0, recalled)
+            self.entry.icursor(tk.END)
         return "break"
