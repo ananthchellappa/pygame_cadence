@@ -21,9 +21,15 @@ def build_namespace(context: CommandContext) -> dict:
         ft = _lookup_target(context, target)
         return ft.get()
 
+    def load(path: str) -> None:
+        with open(path) as f:
+            source = f.read()
+        exec(compile(source, path, "exec"), ns)
+
     ns["move_to"] = move_to
     ns["hi_app_set_font"] = hi_app_set_font
     ns["hi_app_get_font"] = hi_app_get_font
+    ns["load"] = load
     return ns
 
 

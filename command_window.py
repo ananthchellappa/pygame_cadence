@@ -1,6 +1,6 @@
 import tkinter as tk
 import tkinter.font as tkfont
-from tkinter import ttk
+from tkinter import filedialog, ttk
 from typing import Callable, Optional
 
 from command_history import CommandHistory
@@ -10,16 +10,33 @@ DEFAULT_FONT_SIZE = 14
 
 
 class CommandWindow:
-    def __init__(self, root: tk.Tk, on_new_schematic: Callable[[], None]):
+    def __init__(
+        self,
+        root: tk.Tk,
+        on_new_schematic: Callable[[], None],
+        on_load_file: Callable[[str], None],
+        on_exit: Callable[[], None],
+    ):
         self.root = root
         root.title("Commands")
         root.geometry("600x400")
+
+        def pick_and_load():
+            path = filedialog.askopenfilename(
+                title="Load Python file",
+                filetypes=[("Python files", "*.py"), ("All files", "*.*")],
+            )
+            if path:
+                on_load_file(path)
 
         menubar = tk.Menu(root)
         file_menu = tk.Menu(menubar, tearoff=False)
         new_menu = tk.Menu(file_menu, tearoff=False)
         new_menu.add_command(label="Schematic", command=on_new_schematic)
         file_menu.add_cascade(label="New", menu=new_menu)
+        file_menu.add_command(label="Load...", command=pick_and_load)
+        file_menu.add_separator()
+        file_menu.add_command(label="Exit", command=on_exit)
         menubar.add_cascade(label="File", menu=file_menu)
         root.config(menu=menubar)
 

@@ -43,7 +43,18 @@ def main() -> None:
                 pass
 
     document = Document()
-    window = CommandWindow(root, on_new_schematic=open_schematic)
+
+    def on_load_file(path: str) -> None:
+        call = f"load({path!r})"
+        window.log_message(">>> " + call)
+        interpreter.execute(call)
+
+    window = CommandWindow(
+        root,
+        on_new_schematic=open_schematic,
+        on_load_file=on_load_file,
+        on_exit=shutdown,
+    )
 
     context = CommandContext(document=document)
     context.font_targets["Command"] = FontTarget(window.get_font_size, window.set_font_size)
