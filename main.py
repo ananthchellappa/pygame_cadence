@@ -2,12 +2,12 @@ import tkinter as tk
 
 import pygame
 
-from canvas_window import CanvasWindow
 from command_context import CommandContext, FontTarget
 from command_window import CommandWindow
 from document import Document
 from graphics_api import build_namespace
 from interpreter import CommandInterpreter
+from schematic_window import SchematicWindow
 
 FRAME_MS = 16
 
@@ -15,11 +15,25 @@ FRAME_MS = 16
 def main() -> None:
     root = tk.Tk()
     shutting_down = {"flag": False}
+    state = {"schematic": None}
+
+    def close_schematic():
+        if state["schematic"] is None:
+            return
+        state["schematic"] = None
+        pygame.display.quit()
+
+    def open_schematic():
+        if state["schematic"] is not None:
+            return
+        state["schematic"] = SchematicWindow(document, on_close=close_schematic)
 
     def shutdown():
         if shutting_down["flag"]:
             return
         shutting_down["flag"] = True
+        if state["schematic"] is not None:
+            close_schematic()
         try:
             pygame.quit()
         finally:
@@ -29,8 +43,7 @@ def main() -> None:
                 pass
 
     document = Document()
-    canvas = CanvasWindow(document, on_quit=shutdown)
-    window = CommandWindow(root)
+    window = CommandWindow(root, on_new_schematic=open_schematic)
 
     context = CommandContext(document=document)
     context.font_targets["Command"] = FontTarget(window.get_font_size, window.set_font_size)
@@ -43,7 +56,9 @@ def main() -> None:
     def pump():
         if shutting_down["flag"]:
             return
-        canvas.tick()
+        schematic = state["schematic"]
+        if schematic is not None:
+            schematic.tick()
         if shutting_down["flag"]:
             return
         root.after(FRAME_MS, pump)

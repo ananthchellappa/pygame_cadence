@@ -10,10 +10,18 @@ DEFAULT_FONT_SIZE = 14
 
 
 class CommandWindow:
-    def __init__(self, root: tk.Tk):
+    def __init__(self, root: tk.Tk, on_new_schematic: Callable[[], None]):
         self.root = root
         root.title("Commands")
         root.geometry("600x400")
+
+        menubar = tk.Menu(root)
+        file_menu = tk.Menu(menubar, tearoff=False)
+        new_menu = tk.Menu(file_menu, tearoff=False)
+        new_menu.add_command(label="Schematic", command=on_new_schematic)
+        file_menu.add_cascade(label="New", menu=new_menu)
+        menubar.add_cascade(label="File", menu=file_menu)
+        root.config(menu=menubar)
 
         # Track family + size ourselves and re-apply a fresh font spec to each
         # widget on resize.

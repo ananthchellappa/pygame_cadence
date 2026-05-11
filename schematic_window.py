@@ -2,23 +2,25 @@ import pygame
 
 from document import Document
 
+DEFAULT_BACKGROUND = (0, 0, 0)
 
-class CanvasWindow:
+
+class SchematicWindow:
     SIZE = (1000, 700)
-    BACKGROUND = (255, 255, 255)
 
-    def __init__(self, document: Document, on_quit):
+    def __init__(self, document: Document, on_close, background=DEFAULT_BACKGROUND):
         self._document = document
-        self._on_quit = on_quit
+        self._on_close = on_close
+        self.background = background
         pygame.init()
         self.screen = pygame.display.set_mode(self.SIZE)
-        pygame.display.set_caption("Schematic Canvas")
+        pygame.display.set_caption("Schematic")
 
     def tick(self) -> None:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                self._on_quit()
+                self._on_close()
                 return
 
-        self.screen.fill(self.BACKGROUND)
+        self.screen.fill(self.background)
         pygame.display.flip()
